@@ -101,4 +101,69 @@ export default function MultiKidsApp() {
         {screen === "learn" && <LearnMode table={selectedTable} sound={progress.sound} onPick={setSelectedTable} />}
         {screen === "train" && <TrainMode progress={progress} setProgress={setProgress} table={selectedTable} setTable={setSelectedTable} />}
         {screen === "hard" && <HardMode progress={progress} setProgress={setProgress} />}
-        
+        {screen === "daily" && <Session title="🚀 Тренировка на 5 минут" count={18} progress={progress} setProgress={setProgress} adaptive allowDivision />}
+        {screen === "division" && <DivisionMode progress={progress} setProgress={setProgress} table={selectedTable} setTable={setSelectedTable} />}
+        {screen === "test" && <TestMode progress={progress} setProgress={setProgress} />}
+        {screen === "speed" && <SpeedMode progress={progress} setProgress={setProgress} />}
+        {screen === "family" && <FamilyMode sound={progress.sound} />}
+        {screen === "games" && <GamesHub game={game} setGame={setGame} progress={progress} setProgress={setProgress} />}
+      </div>
+
+      {confirmReset && (
+        <div className="fixed inset-0 z-50 grid place-items-center bg-slate-950/35 p-4 backdrop-blur-sm">
+          <div className="card w-full max-w-md p-6 text-center">
+            <div className="text-5xl">🗑️</div>
+            <h2 className="mt-3 text-2xl font-black">Сбросить весь прогресс?</h2>
+            <p className="mt-2 text-slate-500">Звёзды, рекорды и изученные примеры удалятся только на этом устройстве.</p>
+            <div className="mt-5 grid grid-cols-2 gap-3">
+              <button onClick={() => setConfirmReset(false)} className="answer">Отмена</button>
+              <button onClick={() => { resetProgress(); setProgress(emptyProgress()); setConfirmReset(false); }} className="answer !border-rose-100 !bg-rose-50 !text-rose-600">Сбросить</button>
+            </div>
+          </div>
+        </div>
+      )}
+    </main>
+  );
+}
+
+function Home({ progress, onMode, onTable, onReset }: { progress: Progress; onMode: (s: Screen) => void; onTable: (t: number) => void; onReset: () => void }) {
+  const mastery = overallMastery(progress);
+  const attempted = TABLES.reduce((sum, t) => sum + Array.from({ length: 10 }, (_, i) => i + 1).filter((b) => Boolean(progress.facts[multiplicationKey(t, b)])).length, 0);
+  const total = progress.totalCorrect + progress.totalWrong;
+  const accuracy = total ? Math.round(progress.totalCorrect / total * 100) : 0;
+  const ranked = [...TABLES].map((t) => ({ t, m: tableMastery(progress, t) })).sort((a, b) => b.m - a.m);
+  return (
+    <>
+      <section className="relative overflow-hidden rounded-[34px] bg-gradient-to-br from-[#7657ff] via-[#6958f5] to-[#4f7cf7] p-6 text-white shadow-[0_18px_55px_rgba(91,76,220,.28)] md:p-10">
+        <div className="absolute -right-10 -top-16 h-56 w-56 rounded-full bg-white/10" />
+        <div className="absolute bottom-[-70px] left-[35%] h-48 w-48 rounded-full bg-cyan-300/15" />
+        <div className="relative z-10 max-w-3xl">
+          <div className="mb-3 inline-flex rounded-full bg-white/15 px-3 py-1 text-sm font-bold backdrop-blur">Математика без скуки ✨</div>
+          <h1 className="text-3xl font-black leading-tight md:text-5xl">УЧИМ ТАБЛИЦУ<br className="hidden sm:block" /> УМНОЖЕНИЯ 🚀</h1>
+          <p className="mt-4 max-w-xl text-base font-medium text-white/85 md:text-lg">Понял → попробовал → поиграл → повторил → запомнил.</p>
+          <button onClick={() => onMode("daily")} className="press mt-6 rounded-2xl bg-white px-6 py-4 text-lg font-black text-violet-700 shadow-xl">🚀 Тренировка на 5 минут</button>
+        </div>
+      </section>
+
+      <section className="mt-7 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        {modeCards.map((m) => (
+          <button key={m.title} onClick={() => onMode(m.screen)} className="card press flex items-center gap-4 p-4 text-left md:p-5">
+            <span className={`grid h-14 w-14 shrink-0 place-items-center rounded-2xl bg-gradient-to-br ${m.accent} text-2xl shadow-md`}>{m.icon}</span>
+            <span ><span className="block text-lg font-black">{m.title}</span><span className="text-sm font-medium text-slate-500">{m.text}</span></span>
+          </button>
+        ))}
+      </section>
+
+      <section className="mt-8">
+        <div className="mb-4 flex items-end justify-between gap-4"><div><p className="text-sm font-black uppercase tracking-[.16em] text-violet-500">Выбери таблицу </p><h2 className="text-2xl font-black md:text-3xl">От ×2 до ×9</h2></div><span className="text-sm font-bold text-slate-400">Нажми, чтобы учить</span></div>
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 lg:grid-cols-8">
+          {TABLES.map((t) => {
+            const m = tableMastery(progress, t), stars = starsFor(m);
+            return <button key={t} onClick={() => onTable(t)} className="card press p-4 text-center"><div className="text-3xl font-black text-slate-900"> {t}</div><div className="mt-2 text-xs tracking-tight">{"⭐".repeat(stars)}{"☆".repeat(5 - stars)}</div><div className="mt-3 h-2 overflow-hidden rounded-full bg-slate-100"><div className="h-full rounded-full bg-violet-500 transition-all" style={{ width: `${pct(m)}%` }} /></div><div className="mt-1 text-xs font-bold text-slate-400">{pct(m)}%</div></button>;
+          })}
+        </div>
+      </section>
+
+      <section className="mt-8 grid gap-4 lg:grid-cols-[1.4fr_.6fr]">
+        <div className="card p-5 md:p-7">
+          <div className="flex items-center justify-between"><div><p className="text-sm font-black uppercase tracking-[.16em] text-emerald-500">Твой прогресс</p><h2 className="mt-1 text-2xl font-black">Уже получается 💪</h2></div><div className="grid h-20 w-20 place
