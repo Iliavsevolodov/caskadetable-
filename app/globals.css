@@ -1,0 +1,29 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root { color-scheme: light; }
+* { box-sizing: border-box; }
+body { margin: 0; min-height: 100vh; background: #f7f8ff; color: #18203b; }
+button, input { font: inherit; }
+button { -webkit-tap-highlight-color: transparent; }
+
+.bg-grid {
+  background-image: linear-gradient(rgba(111,84,255,.05) 1px, transparent 1px), linear-gradient(90deg, rgba(111,84,255,.05) 1px, transparent 1px);
+  background-size: 28px 28px;
+}
+.card { @apply rounded-[28px] bg-white shadow-[0_10px_35px_rgba(45,53,96,.08)] border border-white/70; }
+.press { @apply transition duration-150 active:scale-[.97] hover:-translate-y-0.5; }
+.answer { @apply min-h-16 rounded-2xl border-2 border-slate-100 bg-white px-5 py-4 text-xl font-black shadow-sm transition active:scale-[.98]; }
+.answer:hover { border-color: #cfc7ff; }
+.correct-pop { animation: correctPop .35s ease; }
+.shake { animation: shake .35s ease; }
+.floaty { animation: floaty 3s ease-in-out infinite; }
+.star-burst::after { content: "✨"; position: absolute; inset: auto 8% 12% auto; animation: burst .55s ease-out both; font-size: 28px; }
+.balloon { animation: balloon 2.4s ease-in-out infinite; }
+
+@keyframes correctPop { 50% { transform: scale(1.06) rotate(1deg); } }
+@keyframes shake { 25% { transform: translateX(-8px); } 50% { transform: translateX(8px); } 75% { transform: translateX(-4px); } }
+@keyframes floaty { 50% { transform: translateY(-8px); } }
+@keyframes burst { from { opacity: 1; transform: scale(.4) rotate(0deg); } to { opacity: 0; transform: scale(2) rotate(25deg); } }
+@keyframes balloon { 50% { transform: translateY(-10px) rotate(2deg); } }
